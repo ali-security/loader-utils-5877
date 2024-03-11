@@ -62,13 +62,13 @@ describe('interpolateName()', () => {
       '/app/img/image.png',
       '[sha512:hash:base64:7].[ext]',
       'test content',
-      '2BKDTjl.png',
+      'DL9MrvO.png',
     ],
     [
       '/app/img/image.png',
       '[sha512:contenthash:base64:7].[ext]',
       'test content',
-      '2BKDTjl.png',
+      'DL9MrvO.png',
     ],
     [
       '/app/dir/file.png',
@@ -116,13 +116,13 @@ describe('interpolateName()', () => {
       '/lib/components/modal/modal.css',
       '[name].[md5:hash:base64:20].[ext]',
       'test content',
-      'modal.1n8osQznuT8jOAwdzg_n.css',
+      'modal.lHP90NiApDwht3eNNIch.css',
     ],
     [
       '/lib/components/modal/modal.css',
       '[name].[md5:contenthash:base64:20].[ext]',
       'test content',
-      'modal.1n8osQznuT8jOAwdzg_n.css',
+      'modal.lHP90NiApDwht3eNNIch.css',
     ],
     // Should not interpret without `hash` or `contenthash`
     [
@@ -265,7 +265,7 @@ describe('interpolateName()', () => {
     ],
     [
       [{}, '[hash:base64]', { content: 'test string' }],
-      '2LIG3oc1uBNmwOoL7kXgoK',
+      'Lgbt1PFiMmjFpRcw2KCyrw==',
       'should interpolate [hash] token with options',
     ],
     [
@@ -381,4 +381,25 @@ describe('interpolateName()', () => {
       'should support regExp in options',
     ],
   ]);
+
+  describe('redos interpolate', () => {
+    // Setting timeout for all tests within this describe block
+    it('should evaluate regex in less then 2 sec', () => {
+      const poc = [
+        '/absolute/path/to/app/js/javascript.js',
+        '[E'.repeat(387300) + '[HASH]',
+        'test content',
+        '[E'.repeat(387300) + 'a69899814931280e2f527219ad6ac754',
+      ];
+      const time = Date.now();
+      const interpolatedName = loaderUtils.interpolateName(
+        { resourcePath: poc[0] },
+        poc[1],
+        { content: poc[2] }
+      );
+      const time_cost = Date.now() - time;
+      expect(time_cost).toBeLessThan(2000);
+      expect(interpolatedName).toBe(poc[3]);
+    });
+  });
 });
